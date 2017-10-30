@@ -262,13 +262,17 @@ static void
 media_prepared (GstRTSPMedia *media, GstAhc *     user_data)
 
 {
+
+    g_print("Stream Added !! \n \n");
+
+    /*
     GstElement *rtsp_pipeline;
 
 
-    /* get the element used for providing the streams of the media */
+     //get the element used for providing the streams of the media
     rtsp_pipeline = gst_rtsp_media_get_element (media);
 
-   // gst_element_set_base_time(rtsp_pipeline, gst_element_get_base_time (user_data->pipeline));
+
 
     gst_element_set_base_time(user_data->pipeline, gst_element_get_base_time (rtsp_pipeline));
 
@@ -292,8 +296,19 @@ media_prepared (GstRTSPMedia *media, GstAhc *     user_data)
     g_print( "Current time on Rtsp Media : %llu \n", gst_clock_get_time(gst_rtsp_media_get_clock (media))/1000000);
 
     g_print( "Current time on global_clock : %llu \n", gst_clock_get_time(global_clock)/1000000);
+*/
 
 
+
+}
+
+
+
+static void on_media_unprepared (GstRTSPMedia *media, GstAhc *     user_data)
+
+{
+
+g_print("Stream Removed !! \n \n");
 
 
 }
@@ -313,8 +328,10 @@ media_configure (GstRTSPMediaFactory * factory, GstRTSPMedia * media,
 
 
 
-   // g_signal_connect (media, "prepared", (GCallback) media_prepared,
-    //       user_data);
+    g_signal_connect (media, "prepared", (GCallback) media_prepared,
+           user_data);
+
+    g_signal_connect ( media, "unprepared", (GCallback) on_media_unprepared, user_data);
 
 }
 
@@ -587,7 +604,10 @@ gst_native_surface_init (JNIEnv * env, jobject thiz, jobject surface)
     GST_DEBUG
         ("Pipeline not created yet, vsink will later be notified about the native window.");
   }
-
+   /*
+    * write a separate method for setting up camera modes, e.g. auto focus etc.
+    * GST_PHOTOGRAPHY_FOCUS_MODE_CONTINUOUS_NORMAL =6*/
+  g_object_set (ahc->ahcsrc, "focus-mode", 6 , NULL);
   check_initialization_complete (ahc);
 }
 
@@ -672,10 +692,9 @@ gst_native_set_rotate_method (JNIEnv * env, jobject thiz, jint method)
 
   if (!ahc)
     return;
-    /*
-     * This method is not called from java, write a separate method for setting up camera modes, e.g. audio focus etc.
-     * GST_PHOTOGRAPHY_FOCUS_MODE_CONTINUOUS_NORMAL =6*/
-  g_object_set (ahc->ahcsrc, "focus-mode", 6 , NULL);
+
+
+
   g_object_set (ahc->vsink, "rotate-method", method, NULL);
   g_print("Setting rotate-method (%d)\n", method) ;
 }
